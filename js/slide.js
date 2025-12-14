@@ -139,6 +139,21 @@ export default class Slide {
     window.addEventListener('resize', this.onResize);
   }
 
+  activeNavigationPrev() {
+    if (this.index.prev !== undefined) {
+      this.changeSlide(this.index.prev);
+    }
+  }
+  activeNavigationNext() {
+    if (this.index.next !== undefined) {
+      this.changeSlide(this.index.next);
+    }
+  }
+
+  transition(active) {
+    this.slide.transition = active ? 'transform .3s' : '';
+  }
+
   init() {
     this.bindEvents();
     this.transition(true);
