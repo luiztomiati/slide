@@ -26,6 +26,7 @@ export default class Slide {
       movetype = 'touchmove';
     }
     this.wrapper.addEventListener(movetype, this.onMove);
+    this.transition(false);
   }
 
   onMove(event) {
@@ -41,6 +42,17 @@ export default class Slide {
     const movetype = event.type === 'mouseup' ? 'mousemove' : 'touchmove';
     this.wrapper.removeEventListener(movetype, this.onMove);
     this.dist.finalPosition = this.dist.movePosition;
+    this.changeSlideEnd();
+    this.transition(true);
+  }
+  changeSlideEnd() {
+    if (this.dist.movement > 120 && this.index.next !== undefined) {
+      this.activeNavigationNext();
+    } else if (this.dist.movement < 120 && this.index.prev !== undefined) {
+      this.activeNavigationPrev();
+    } else {
+      this.changeSlide(this.index.active);
+    }
   }
 
   addSlideEvents() {
@@ -86,10 +98,26 @@ export default class Slide {
     this.dist.finalPosition = activeSlide.position;
   }
 
+  activeNavigationPrev() {
+    if (this.index.prev !== undefined) {
+      this.changeSlide(this.index.prev);
+    }
+  }
+  activeNavigationNext() {
+    if (this.index.next !== undefined) {
+      this.changeSlide(this.index.next);
+    }
+  }
+
+  transition(active) {
+    this.slide.transition = active ? 'transform .3s' : '';
+  }
+
   init() {
     this.bindEvents();
     this.addSlideEvents();
     this.slidesConfig();
+    this.transition(true);
     return this;
   }
 }
