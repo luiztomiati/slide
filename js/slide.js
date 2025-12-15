@@ -6,6 +6,7 @@ export class Slide {
     this.wrapper = document.querySelector(wrapper);
     this.dist = { finalPosition: 0, startX: 0, movement: 0 };
     this.activeClass = 'active';
+    this.changeEvent = new Event('changeEvent');
   }
 
   transition(active) {
@@ -70,8 +71,6 @@ export class Slide {
     this.wrapper.addEventListener('touchend', this.onEnd);
   }
 
-  // Slides config
-
   slidePosition(slide) {
     const margin = (this.wrapper.offsetWidth - slide.offsetWidth) / 2;
     return -(slide.offsetLeft - margin);
@@ -99,6 +98,7 @@ export class Slide {
     this.slidesIndexNav(index);
     this.dist.finalPosition = activeSlide.position;
     this.changeActiveClass();
+    this.wrapper.dispatchEvent(this.changeEvent);
   }
 
   changeActiveClass() {
@@ -150,6 +150,10 @@ export class Slide {
 }
 
 export class SlideNav extends Slide {
+  constructor(slide, wrapper) {
+    super(slide, wrapper);
+    this.bindEventsPag();
+  }
   addArrow(prev, next) {
     this.prevElement = document.querySelector(prev);
     this.nextElement = document.querySelector(next);
@@ -159,5 +163,40 @@ export class SlideNav extends Slide {
   addArrowEvent() {
     this.prevElement.addEventListener('click', this.activePrevSlide);
     this.nextElement.addEventListener('click', this.activeNextSlide);
+  }
+  createPag() {
+    const pag = document.createElement('ul');
+    pag.dataset.pag = 'slide';
+    this.slideArray.forEach((item, index) => {
+      pag.innerHTML += `<li><a href="#slide${index + 1}">${index + 1}</a></li>`;
+    });
+    this.wrapper.appendChild(pag);
+    return pag;
+  }
+
+  eventPag(item, index) {
+    item.addEventListener('click', (event) => {
+      event.preventDefault();
+      this.changeSlide(index);
+    });
+    this.wrapper.addEventListener('changeEvent', this.addClassActive);
+  }
+
+  addPag(customPag) {
+    this.pag = document.querySelector(customPag) || this.createPag();
+    this.pagArray = [...this.pag.children];
+    this.pagArray.forEach(this.eventPag);
+    this.addClassActive();
+  }
+  bindEventsPag() {
+    this.eventPag = this.eventPag.bind(this);
+    this.addClassActive = this.addClassActive.bind(this);
+    this.addClassActive = this.addClassActive.bind(this);
+  }
+  addClassActive() {
+    this.pagArray.forEach((item) => {
+      item.classList.remove(this.activeClass);
+    });
+    this.pagArray[this.index.active].classList.add(this.activeClass);
   }
 }
